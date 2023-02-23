@@ -308,7 +308,6 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		volumeMounts = append(volumeMounts, devMount)
 	}
 
-//	if IA_QAT == "enabled"
 	etcVolume := v1.Volume{Name: "etcfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/etc"}}}
 	volumes = append(volumes, etcVolume)
 	etcMount := v1.VolumeMount{Name: "etcfs", MountPath: "/etc"}
