@@ -381,8 +381,8 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 				"--id", osdID,
 				"--fsid", c.clusterInfo.FSID,
 				"--cluster", "ceph",
-				"--setuser", "ceph",
-				"--setgroup", "ceph",
+				"--setuser", "root",
+				"--setgroup", "root",
 				fmt.Sprintf("--crush-location=%s", osd.Location),
 			}
 			osd.LVBackedPV = true
@@ -395,8 +395,8 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 				"--foreground",
 				"--id", osdID,
 				"--fsid", c.clusterInfo.FSID,
-				"--setuser", "ceph",
-				"--setgroup", "ceph",
+				"--setuser", "root",
+				"--setgroup", "root",
 				fmt.Sprintf("--crush-location=%s", osd.Location),
 			}
 		}
@@ -408,8 +408,8 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 			"--foreground",
 			"--id", osdID,
 			"--fsid", c.clusterInfo.FSID,
-			"--setuser", "ceph",
-			"--setgroup", "ceph",
+			"--setuser", "root",
+			"--setgroup", "root",
 			fmt.Sprintf("--crush-location=%s", osd.Location),
 		}
 	}
