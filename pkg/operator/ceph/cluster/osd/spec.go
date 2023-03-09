@@ -308,10 +308,15 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		volumeMounts = append(volumeMounts, devMount)
 	}
 
-	etcVolume := v1.Volume{Name: "etcfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/etc"}}}
-	volumes = append(volumes, etcVolume)
-	etcMount := v1.VolumeMount{Name: "etcfs", MountPath: "/etc"}
-	volumeMounts = append(volumeMounts, etcMount)
+	// etcVolume := v1.Volume{Name: "etcfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/etc"}}}
+	// volumes = append(volumes, etcVolume)
+	// etcMount := v1.VolumeMount{Name: "etcfs", MountPath: "/etc"}
+	// volumeMounts = append(volumeMounts, etcMount)
+
+	sysVolume := v1.Volume{Name: "sysfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/sys"}}}
+	volumes = append(volumes, sysVolume)
+	sysMount := v1.VolumeMount{Name: "sysfs", MountPath: "/sys"}
+	volumeMounts = append(volumeMounts, sysMount)
 
 	// If the OSD runs on PVC
 	if osdProps.onPVC() {
