@@ -216,6 +216,7 @@ rules:
       # Rook watches for changes to the rook-operator-config configmap
       - configmaps
     verbs:
+      - patch
       - get
       - list
       - watch
