@@ -278,10 +278,13 @@ rules:
       - cephblockpoolradosnamespaces
     verbs:
       - get
+      - create  
       - list
       - watch
       # Ideally the update permission is not required, but Rook needs it to add finalizers to resources.
       - update
+      - patch
+      - delete
   # Rook must have update access to status subresources for its custom resources.
   - apiGroups: ["ceph.rook.io"]
     resources:
@@ -417,6 +420,7 @@ rules:
     resources:
       - storageclasses
     verbs:
+      - create      
       - get
       - list
       - watch
@@ -760,7 +764,6 @@ rules:
       - create
       - update
       - delete
-      - patch
   - apiGroups:
       - apps
     resources:
