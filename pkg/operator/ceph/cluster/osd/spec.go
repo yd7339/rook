@@ -22,6 +22,9 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
+	"os/exec"
+	"strings"
+	"log"
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
@@ -278,6 +281,26 @@ func deploymentName(osdID int) string {
 	return fmt.Sprintf(osdAppNameFmt, osdID)
 }
 
+func GetQatGrpID()(out string) {
+	cmd := "cat /etc/group | grep qat | awk -F ':' '{print $(NF-1)}'"
+	tmp, err := exec.Command("bash","-c",cmd).Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	out = string(tmp)
+	return out
+}
+	
+func CreateQatGroup(qatgroupid string) error {
+	cmd := exec.Command("/usr/sbin/groupadd", "test", "-g", qatgroupid, "-o", "-r")
+	return cmd.Run()
+}
+	
+func AddCephtoQatGroup() error {
+	cmd := exec.Command("/usr/sbin/usermod", "-aG", "qat", "ceph")
+	return cmd.Run()
+}
+
 func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionConfig *provisionConfig) (*apps.Deployment, error) {
 	deploymentName := deploymentName(osd.ID)
 	replicaCount := int32(1)
@@ -366,25 +389,6 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		{Name: "ROOK_IS_DEVICE", Value: "true"},
 		getTcmallocMaxTotalThreadCacheBytes(""),
 	}...)
-
-	func GetQatGrpID() string {
-		cmd := "cat /etc/group | grep qat | awk -F ':' '{print $(NF-1)}'"
-		out, err := exec.Command("bash","-c",cmd).Output()
-		if err != nil {
-			log.Fatal(err)
-		}
-		return string(out)
-	}
-	
-	func CreateQatGroup(qatgroupid string) error {
-		cmd := exec.Command("/usr/sbin/groupadd", "test", "-g", qatgroupid, "-o", "-r")
-		return cmd.Run()
-	}
-	
-	func AddCephtoQatGroup() error {
-		cmd := exec.Command("/usr/sbin/usermod", "-aG", "qat", "ceph")
-		return cmd.Run()
-	}
 	
 	//Add QAT group
 	tmp := GetQatGrpID()
