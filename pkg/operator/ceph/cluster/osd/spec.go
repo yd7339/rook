@@ -308,10 +308,10 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		volumeMounts = append(volumeMounts, devMount)
 	}
 
-	// etcVolume := v1.Volume{Name: "etcfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/etc"}}}
-	// volumes = append(volumes, etcVolume)
-	// etcMount := v1.VolumeMount{Name: "etcfs", MountPath: "/etc"}
-	// volumeMounts = append(volumeMounts, etcMount)
+	etcVolume := v1.Volume{Name: "etcfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/etc"}}}
+	volumes = append(volumes, etcVolume)
+	etcMount := v1.VolumeMount{Name: "etcfs", MountPath: "/etc"}
+	volumeMounts = append(volumeMounts, etcMount)
 
 	sysVolume := v1.Volume{Name: "sysfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/sys"}}}
 	volumes = append(volumes, sysVolume)
@@ -366,6 +366,35 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		{Name: "ROOK_IS_DEVICE", Value: "true"},
 		getTcmallocMaxTotalThreadCacheBytes(""),
 	}...)
+
+	func GetQatGrpID() string {
+		cmd := "cat /etc/group | grep qat | awk -F ':' '{print $(NF-1)}'"
+		out, err := exec.Command("bash","-c",cmd).Output()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return string(out)
+	}
+	
+	func CreateQatGroup(qatgroupid string) error {
+		cmd := exec.Command("/usr/sbin/groupadd", "test", "-g", qatgroupid, "-o", "-r")
+		return cmd.Run()
+	}
+	
+	func AddCephtoQatGroup() error {
+		cmd := exec.Command("/usr/sbin/usermod", "-aG", "qat", "ceph")
+		return cmd.Run()
+	}
+	
+	//Add QAT group
+	tmp := GetQatGrpID()
+	QatGrpID := strings.Trim(tmp, "\n")
+	if err := CreateQatGroup(QatGrpID); err != nil{
+        fmt.Println("Create qat group error, Err =", err)
+    }
+	if err := AddCephtoQatGroup(); err != nil{
+        fmt.Println("Error to add ceph to qat group, Err =", err)
+    }
 
 	var command []string
 	var args []string
